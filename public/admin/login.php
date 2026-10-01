@@ -19,7 +19,7 @@ $email = '';
 $error = Session::flash('error');
 $success = Session::flash('success');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     Csrf::requireValid($_POST[$csrfKey] ?? null, $csrfKey);
 
     $email = trim((string) ($_POST['email'] ?? ''));

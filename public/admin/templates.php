@@ -14,7 +14,7 @@ $csrfKey = (string) app_config('security.csrf_key', '_csrf_token');
 $database = db();
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     Csrf::requireValid($_POST[$csrfKey] ?? null, $csrfKey);
     $slug = sanitize_text((string) ($_POST['template_slug'] ?? ''), 100);
 

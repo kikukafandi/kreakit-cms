@@ -12,7 +12,7 @@ Session::start(app_config('session', []));
 require_admin();
 
 $csrfKey = (string) app_config('security.csrf_key', '_csrf_token');
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     http_response_code(405);
     exit('Metode tidak diizinkan.');
 }

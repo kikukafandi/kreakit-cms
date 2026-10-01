@@ -15,7 +15,7 @@ $csrfKey = (string) app_config('security.csrf_key', '_csrf_token');
 $errors = [];
 $success = Session::flash('success');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     Csrf::requireValid($_POST[$csrfKey] ?? null, $csrfKey);
 
     $currentPassword = (string) ($_POST['current_password'] ?? '');
