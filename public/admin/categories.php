@@ -91,66 +91,29 @@ $categories = $database->select('SELECT c.*, (SELECT COUNT(*) FROM items i WHERE
 $success = Session::flash('success');
 $error = Session::flash('error');
 ?>
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kategori — <?= e(app_config('app.name', 'KreaKit CMS')) ?></title>
-</head>
-<body>
-<main>
-    <h1>Kategori</h1>
-    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis</a> · <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a></p>
-    <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
-    <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
-
-    <section>
-        <h2><?= $editCategory ? 'Edit Kategori' : 'Tambah Kategori' ?></h2>
-        <form method="post" action="<?= e(url('/admin/categories.php')) ?>" novalidate>
-            <?= Csrf::field($csrfKey) ?>
-            <input type="hidden" name="action" value="save">
-            <input type="hidden" name="id" value="<?= e((string) ($editCategory['id'] ?? '')) ?>">
-            <p><label>Nama<br><input name="name" required maxlength="100" value="<?= e($editCategory['name'] ?? '') ?>"></label></p>
-            <p><label>Slug<br><input name="slug" maxlength="120" placeholder="otomatis dari nama jika kosong" value="<?= e($editCategory['slug'] ?? '') ?>"></label></p>
-            <p><label>Deskripsi<br><textarea name="description" rows="3"><?= e($editCategory['description'] ?? '') ?></textarea></label></p>
-            <p><label>Sort Order<br><input name="sort_order" type="number" value="<?= e((string) ($editCategory['sort_order'] ?? 0)) ?>"></label></p>
-            <p><label><input type="checkbox" name="is_active" value="1"<?= ((int) ($editCategory['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></p>
-            <button type="submit"><?= $editCategory ? 'Update Kategori' : 'Tambah Kategori' ?></button>
-            <?php if ($editCategory): ?><a href="<?= e(url('/admin/categories.php')) ?>">Batal edit</a><?php endif; ?>
-        </form>
-    </section>
-
-    <section>
-        <h2>Daftar Kategori</h2>
-        <?php if ($categories === []): ?>
-            <p>Belum ada kategori.</p>
-        <?php else: ?>
-            <table border="1" cellpadding="6">
-                <thead><tr><th>Nama</th><th>Slug</th><th>Item</th><th>Sort</th><th>Status</th><th>Aksi</th></tr></thead>
-                <tbody>
-                <?php foreach ($categories as $category): ?>
-                    <tr>
-                        <td><?= e($category['name']) ?></td>
-                        <td><?= e($category['slug']) ?></td>
-                        <td><?= e((string) $category['item_count']) ?></td>
-                        <td><?= e((string) $category['sort_order']) ?></td>
-                        <td><?= ((int) $category['is_active'] === 1) ? 'Aktif' : 'Nonaktif' ?></td>
-                        <td>
-                            <a href="<?= e(url('/admin/categories.php?edit=' . (int) $category['id'])) ?>">Edit</a>
-                            <form method="post" action="<?= e(url('/admin/categories.php')) ?>" style="display:inline">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate"><input type="hidden" name="id" value="<?= e((string) $category['id']) ?>"><button type="submit">Nonaktifkan</button>
-                            </form>
-                            <form method="post" action="<?= e(url('/admin/categories.php')) ?>" style="display:inline" onsubmit="return confirm('Hapus kategori ini? Item terkait menjadi tanpa kategori.')">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e((string) $category['id']) ?>"><button type="submit">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </section>
-</main>
-</body>
-</html>
+<?php admin_layout_start('Kategori', 'categories', 'Buat kelompok produk atau layanan agar katalog lebih rapi dan mudah dipahami pelanggan.'); ?>
+<?php admin_flash_block($success ?: null, $error ?: null); ?>
+<div class="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+<section class="<?= admin_card() ?>">
+    <h2 class="text-2xl font-black text-slate-950"><?= $editCategory ? 'Edit Kategori' : 'Tambah Kategori' ?></h2>
+    <p class="mt-2 text-sm text-slate-500">Slug boleh dikosongkan, sistem akan membuat dari nama.</p>
+    <form method="post" action="<?= e(url('/admin/categories.php')) ?>" class="mt-6 grid gap-5" novalidate>
+        <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<?= e((string) ($editCategory['id'] ?? '')) ?>">
+        <div><label class="<?= admin_label_class() ?>">Nama Kategori</label><input name="name" required maxlength="100" value="<?= e($editCategory['name'] ?? '') ?>" class="<?= admin_input_class() ?>" placeholder="Contoh: Menu Paket"></div>
+        <div><label class="<?= admin_label_class() ?>">Slug</label><input name="slug" maxlength="120" placeholder="otomatis dari nama jika kosong" value="<?= e($editCategory['slug'] ?? '') ?>" class="<?= admin_input_class() ?>"></div>
+        <div><label class="<?= admin_label_class() ?>">Deskripsi</label><textarea name="description" rows="4" class="<?= admin_input_class() ?>"><?= e($editCategory['description'] ?? '') ?></textarea></div>
+        <div class="grid gap-4 sm:grid-cols-2"><div><label class="<?= admin_label_class() ?>">Sort Order</label><input name="sort_order" type="number" value="<?= e((string) ($editCategory['sort_order'] ?? 0)) ?>" class="<?= admin_input_class() ?>"></div><div class="flex items-end"><label class="flex w-full items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" name="is_active" value="1" class="h-4 w-4 rounded"<?= ((int) ($editCategory['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></div></div>
+        <div class="flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>"><?= $editCategory ? 'Update Kategori' : 'Tambah Kategori' ?></button><?php if ($editCategory): ?><a href="<?= e(url('/admin/categories.php')) ?>" class="<?= admin_secondary_button() ?>">Batal edit</a><?php endif; ?></div>
+    </form>
+</section>
+<section class="<?= admin_card() ?>">
+    <h2 class="text-2xl font-black text-slate-950">Daftar Kategori</h2>
+    <p class="mt-2 text-sm text-slate-500">Kategori nonaktif tidak ditonjolkan di website publik.</p>
+    <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+    <?php if ($categories === []): ?><?php admin_empty_state('Belum ada kategori', 'Tambah kategori pertama untuk mengelompokkan katalog.'); ?><?php else: ?>
+        <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-sm"><thead class="bg-slate-50 text-left text-xs font-black uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">Nama</th><th class="px-4 py-3">Slug</th><th class="px-4 py-3">Item</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white"><?php foreach ($categories as $category): ?><tr><td class="px-4 py-3 font-bold text-slate-950"><?= e($category['name']) ?></td><td class="px-4 py-3 text-slate-500"><?= e($category['slug']) ?></td><td class="px-4 py-3"><?= e((string) $category['item_count']) ?></td><td class="px-4 py-3"><?= e((string) $category['sort_order']) ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $category['is_active'] === 1) ?></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><a href="<?= e(url('/admin/categories.php?edit=' . (int) $category['id'])) ?>" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Edit</a><form method="post" action="<?= e(url('/admin/categories.php')) ?>"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate"><input type="hidden" name="id" value="<?= e((string) $category['id']) ?>"><button type="submit" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Nonaktifkan</button></form><form method="post" action="<?= e(url('/admin/categories.php')) ?>" onsubmit="return confirm('Hapus kategori ini? Item terkait menjadi tanpa kategori.')"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e((string) $category['id']) ?>"><button type="submit" class="<?= admin_danger_button() ?>">Hapus</button></form></div></td></tr><?php endforeach; ?></tbody></table></div>
+    <?php endif; ?>
+    </div>
+</section>
+</div>
+<?php admin_layout_end(); ?>

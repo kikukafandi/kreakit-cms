@@ -28,6 +28,7 @@ $helpers = [
     BASE_PATH . '/app/Helpers/admin_content.php',
     BASE_PATH . '/app/Helpers/upload.php',
     BASE_PATH . '/app/Helpers/template.php',
+    BASE_PATH . '/app/Helpers/admin_ui.php',
 ];
 
 foreach ($helpers as $helper) {

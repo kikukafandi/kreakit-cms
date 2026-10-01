@@ -48,42 +48,21 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $admin = Auth::admin();
 http_response_code(200);
 ?>
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ubah Password — <?= e(app_config('app.name', 'KreaKit CMS')) ?></title>
-</head>
-<body>
-    <main>
-        <h1>Ubah Password</h1>
-        <p>Admin: <?= e($admin['email'] ?? '') ?></p>
-        <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
-        <?php if ($errors !== []): ?>
-            <div role="alert">
-                <?php foreach ($errors as $error): ?>
-                    <p><?= e($error) ?></p>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-        <form method="post" action="<?= e(url('/admin/password.php')) ?>" novalidate>
-            <?= Csrf::field($csrfKey) ?>
-            <div>
-                <label for="current_password">Password Saat Ini</label>
-                <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
-            </div>
-            <div>
-                <label for="new_password">Password Baru</label>
-                <input id="new_password" name="new_password" type="password" autocomplete="new-password" required minlength="10">
-            </div>
-            <div>
-                <label for="confirm_password">Konfirmasi Password Baru</label>
-                <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required minlength="10">
-            </div>
-            <button type="submit">Simpan Password</button>
-        </form>
-        <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Kembali ke dashboard</a></p>
-    </main>
-</body>
-</html>
+<?php admin_layout_start('Ubah Password', 'password', 'Gunakan password kuat agar admin website tetap aman.'); ?>
+<?php if ($success): ?><div role="status" class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"><?= e($success) ?></div><?php endif; ?>
+<?php if ($errors !== []): ?>
+    <div role="alert" class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+        <?php foreach ($errors as $error): ?><p><?= e($error) ?></p><?php endforeach; ?>
+    </div>
+<?php endif; ?>
+<section class="<?= admin_card('max-w-2xl') ?>">
+    <p class="mb-5 text-sm text-slate-500">Admin: <strong class="text-slate-700"><?= e($admin['email'] ?? '') ?></strong></p>
+    <form method="post" action="<?= e(url('/admin/password.php')) ?>" class="space-y-5" novalidate>
+        <?= Csrf::field($csrfKey) ?>
+        <div><label for="current_password" class="<?= admin_label_class() ?>">Password Saat Ini</label><input id="current_password" name="current_password" type="password" autocomplete="current-password" required class="<?= admin_input_class() ?>"></div>
+        <div><label for="new_password" class="<?= admin_label_class() ?>">Password Baru</label><input id="new_password" name="new_password" type="password" autocomplete="new-password" required minlength="10" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">Minimal 10 karakter, lebih aman jika memakai kombinasi huruf, angka, dan simbol.</p></div>
+        <div><label for="confirm_password" class="<?= admin_label_class() ?>">Konfirmasi Password Baru</label><input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required minlength="10" class="<?= admin_input_class() ?>"></div>
+        <div class="flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>">Simpan Password</button><a href="<?= e(url('/admin/dashboard.php')) ?>" class="<?= admin_secondary_button() ?>">Kembali</a></div>
+    </form>
+</section>
+<?php admin_layout_end(); ?>

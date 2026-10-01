@@ -211,110 +211,59 @@ if (is_int($editSocialId)) {
 $success = Session::flash('success');
 $error = Session::flash('error');
 ?>
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Profil Bisnis — <?= e(app_config('app.name', 'KreaKit CMS')) ?></title>
-</head>
-<body>
-<main>
-    <h1>Profil Bisnis</h1>
-    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a> · <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a> · <a href="<?= e(url('/admin/templates.php')) ?>">Template</a> · <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Preview Website</a></p>
-    <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
-    <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
-
-    <form method="post" action="<?= e(url('/admin/business.php')) ?>" enctype="multipart/form-data" novalidate>
-        <?= Csrf::field($csrfKey) ?>
-        <input type="hidden" name="action" value="save_business">
-        <p><label>Nama Bisnis<br><input name="business_name" required maxlength="150" value="<?= e($business['business_name'] ?? '') ?>"></label></p>
-        <p><label>Tagline<br><input name="tagline" maxlength="190" value="<?= e($business['tagline'] ?? '') ?>"></label></p>
-        <p><label>Deskripsi<br><textarea name="description" rows="5"><?= e($business['description'] ?? '') ?></textarea></label></p>
-        <input type="hidden" name="existing_logo_path" value="<?= e($business['logo_path'] ?? '') ?>">
-        <input type="hidden" name="existing_hero_image_path" value="<?= e($business['hero_image_path'] ?? '') ?>">
-        <p><label>Logo (jpg/png/webp, maks 2 MB)<br><input name="logo_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($business['logo_path'])): ?>Saat ini: <?= e($business['logo_path']) ?><?php endif; ?></p>
-        <p><label>Hero Image (jpg/png/webp, maks 2 MB)<br><input name="hero_image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($business['hero_image_path'])): ?>Saat ini: <?= e($business['hero_image_path']) ?><?php endif; ?></p>
-        <p><label>WhatsApp<br><input name="whatsapp_number" maxlength="30" placeholder="6281234567890" value="<?= e($business['whatsapp_number'] ?? '') ?>"></label></p>
-        <p><label>Alamat<br><textarea name="address" rows="3"><?= e($business['address'] ?? '') ?></textarea></label></p>
-        <p><label>URL Maps<br><input name="maps_url" type="url" maxlength="500" placeholder="https://maps.google.com/..." value="<?= e($business['maps_url'] ?? '') ?>"></label></p>
-        <p><label>Email<br><input name="email" type="email" maxlength="190" value="<?= e($business['email'] ?? '') ?>"></label></p>
-        <p><label>Phone<br><input name="phone" maxlength="50" value="<?= e($business['phone'] ?? '') ?>"></label></p>
-        <button type="submit">Simpan Profil</button>
-        <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
+<?php admin_layout_start('Profil Bisnis', 'business', 'Isi data utama yang tampil di website: nama bisnis, kontak, warna, SEO, dan sosial media.'); ?>
+<?php admin_flash_block($success ?: null, $error ?: null); ?>
+<div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <section class="<?= admin_card() ?>">
+        <div class="mb-6"><h2 class="text-2xl font-black text-slate-950">Data Bisnis</h2><p class="mt-2 text-sm text-slate-500">Bagian ini menjadi isi utama hero dan kontak website publik.</p></div>
+        <form method="post" action="<?= e(url('/admin/business.php')) ?>" enctype="multipart/form-data" class="grid gap-5" novalidate>
+            <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save_business">
+            <div><label class="<?= admin_label_class() ?>">Nama Bisnis</label><input name="business_name" required maxlength="150" value="<?= e($business['business_name'] ?? '') ?>" class="<?= admin_input_class() ?>" placeholder="Contoh: Dapur Ibu Sari"></div>
+            <div><label class="<?= admin_label_class() ?>">Tagline</label><input name="tagline" maxlength="190" value="<?= e($business['tagline'] ?? '') ?>" class="<?= admin_input_class() ?>" placeholder="Masakan rumahan siap antar"></div>
+            <div><label class="<?= admin_label_class() ?>">Deskripsi</label><textarea name="description" rows="5" class="<?= admin_input_class() ?>" placeholder="Ceritakan bisnis, layanan, area, dan keunggulan utama."><?= e($business['description'] ?? '') ?></textarea></div>
+            <input type="hidden" name="existing_logo_path" value="<?= e($business['logo_path'] ?? '') ?>"><input type="hidden" name="existing_hero_image_path" value="<?= e($business['hero_image_path'] ?? '') ?>">
+            <div class="grid gap-5 md:grid-cols-2">
+                <div><label class="<?= admin_label_class() ?>">Logo</label><input name="logo_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">jpg/png/webp, maks 2 MB. <?php if (!empty($business['logo_path'])): ?>Saat ini: <?= e($business['logo_path']) ?><?php endif; ?></p></div>
+                <div><label class="<?= admin_label_class() ?>">Hero Image</label><input name="hero_image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">Gambar besar di halaman utama. <?php if (!empty($business['hero_image_path'])): ?>Saat ini: <?= e($business['hero_image_path']) ?><?php endif; ?></p></div>
+            </div>
+            <div class="grid gap-5 md:grid-cols-2">
+                <div><label class="<?= admin_label_class() ?>">WhatsApp</label><input name="whatsapp_number" maxlength="30" placeholder="6281234567890" value="<?= e($business['whatsapp_number'] ?? '') ?>" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">Gunakan format internasional tanpa + atau spasi.</p></div>
+                <div><label class="<?= admin_label_class() ?>">Phone</label><input name="phone" maxlength="50" value="<?= e($business['phone'] ?? '') ?>" class="<?= admin_input_class() ?>"></div>
+            </div>
+            <div><label class="<?= admin_label_class() ?>">Alamat</label><textarea name="address" rows="3" class="<?= admin_input_class() ?>"><?= e($business['address'] ?? '') ?></textarea></div>
+            <div class="grid gap-5 md:grid-cols-2"><div><label class="<?= admin_label_class() ?>">URL Maps</label><input name="maps_url" type="url" maxlength="500" placeholder="https://maps.google.com/..." value="<?= e($business['maps_url'] ?? '') ?>" class="<?= admin_input_class() ?>"></div><div><label class="<?= admin_label_class() ?>">Email</label><input name="email" type="email" maxlength="190" value="<?= e($business['email'] ?? '') ?>" class="<?= admin_input_class() ?>"></div></div>
+            <div class="flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>">Simpan Profil</button><button type="submit" name="preview_after_save" value="1" class="<?= admin_secondary_button() ?>">Simpan & Preview</button></div>
+        </form>
+    </section>
+    <aside class="space-y-6">
+        <section id="settings" class="<?= admin_card() ?>">
+            <h2 class="text-2xl font-black text-slate-950">Settings Dasar</h2><p class="mt-2 text-sm text-slate-500">Atur warna dan metadata sederhana.</p>
+            <form method="post" action="<?= e(url('/admin/business.php')) ?>" class="mt-5 grid gap-4" novalidate>
+                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save_settings">
+                <div class="grid gap-4 sm:grid-cols-2"><div><label class="<?= admin_label_class() ?>">Primary Color</label><input name="primary_color" maxlength="20" placeholder="#0f766e" value="<?= e($settings['primary_color'] ?? '') ?>" class="<?= admin_input_class() ?>"></div><div><label class="<?= admin_label_class() ?>">Secondary Color</label><input name="secondary_color" maxlength="20" placeholder="#f97316" value="<?= e($settings['secondary_color'] ?? '') ?>" class="<?= admin_input_class() ?>"></div></div>
+                <div class="grid gap-4 sm:grid-cols-2"><div><label class="<?= admin_label_class() ?>">Button Style</label><select name="button_style" class="<?= admin_input_class() ?>"><?php foreach (['rounded' => 'Rounded', 'square' => 'Square', 'pill' => 'Pill'] as $value => $label): ?><option value="<?= e($value) ?>"<?= (($settings['button_style'] ?? 'rounded') === $value) ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></div><div><label class="<?= admin_label_class() ?>">Mode Katalog</label><select name="catalog_mode" class="<?= admin_input_class() ?>"><?php foreach (['products' => 'Produk', 'services' => 'Layanan'] as $value => $label): ?><option value="<?= e($value) ?>"<?= (($settings['catalog_mode'] ?? 'products') === $value) ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></div></div>
+                <div><label class="<?= admin_label_class() ?>">Meta Title</label><input name="site_meta_title" maxlength="150" value="<?= e($settings['site_meta_title'] ?? '') ?>" class="<?= admin_input_class() ?>"></div>
+                <div><label class="<?= admin_label_class() ?>">Meta Description</label><textarea name="site_meta_description" rows="3" maxlength="255" class="<?= admin_input_class() ?>"><?= e($settings['site_meta_description'] ?? '') ?></textarea></div>
+                <div class="flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>">Simpan Settings</button><button type="submit" name="preview_after_save" value="1" class="<?= admin_secondary_button() ?>">Simpan & Preview</button></div>
+            </form>
+        </section>
+    </aside>
+</div>
+<section id="social" class="mt-6 <?= admin_card() ?>">
+    <div class="mb-6"><h2 class="text-2xl font-black text-slate-950">Social Links</h2><p class="mt-2 text-sm text-slate-500">Tambahkan Instagram, marketplace, TikTok, Facebook, atau link lain.</p></div>
+    <form method="post" action="<?= e(url('/admin/business.php')) ?>" class="grid gap-4 lg:grid-cols-6" novalidate>
+        <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save_social"><input type="hidden" name="id" value="<?= e((string) ($editSocial['id'] ?? '')) ?>">
+        <div><label class="<?= admin_label_class() ?>">Platform</label><select name="platform" class="<?= admin_input_class() ?>"><?php foreach (social_platform_options() as $value => $label): ?><option value="<?= e($value) ?>"<?= (($editSocial['platform'] ?? '') === $value) ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></div>
+        <div><label class="<?= admin_label_class() ?>">Label</label><input name="label" maxlength="100" value="<?= e($editSocial['label'] ?? '') ?>" class="<?= admin_input_class() ?>"></div>
+        <div class="lg:col-span-2"><label class="<?= admin_label_class() ?>">URL</label><input name="url" type="url" required maxlength="500" value="<?= e($editSocial['url'] ?? '') ?>" class="<?= admin_input_class() ?>"></div>
+        <div><label class="<?= admin_label_class() ?>">Sort</label><input name="sort_order" type="number" value="<?= e((string) ($editSocial['sort_order'] ?? 0)) ?>" class="<?= admin_input_class() ?>"></div>
+        <div class="flex items-end"><label class="flex w-full items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" name="is_active" value="1" class="h-4 w-4 rounded"<?= ((int) ($editSocial['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></div>
+        <div class="lg:col-span-6 flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>"><?= $editSocial ? 'Update Social Link' : 'Tambah Social Link' ?></button><?php if ($editSocial): ?><a href="<?= e(url('/admin/business.php#social')) ?>" class="<?= admin_secondary_button() ?>">Batal edit</a><?php endif; ?></div>
     </form>
-
-    <section id="settings">
-        <h2>Settings Dasar</h2>
-        <form method="post" action="<?= e(url('/admin/business.php')) ?>" novalidate>
-            <?= Csrf::field($csrfKey) ?>
-            <input type="hidden" name="action" value="save_settings">
-            <p><label>Primary Color<br><input name="primary_color" maxlength="20" placeholder="#0f766e" value="<?= e($settings['primary_color'] ?? '') ?>"></label></p>
-            <p><label>Secondary Color<br><input name="secondary_color" maxlength="20" placeholder="#f97316" value="<?= e($settings['secondary_color'] ?? '') ?>"></label></p>
-            <p><label>Button Style<br><select name="button_style">
-                <?php foreach (['rounded' => 'Rounded', 'square' => 'Square', 'pill' => 'Pill'] as $value => $label): ?>
-                    <option value="<?= e($value) ?>"<?= (($settings['button_style'] ?? 'rounded') === $value) ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-            </select></label></p>
-            <p><label>Mode Katalog<br><select name="catalog_mode">
-                <?php foreach (['products' => 'Produk', 'services' => 'Layanan'] as $value => $label): ?>
-                    <option value="<?= e($value) ?>"<?= (($settings['catalog_mode'] ?? 'products') === $value) ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-            </select></label></p>
-            <p><label>Meta Title<br><input name="site_meta_title" maxlength="150" value="<?= e($settings['site_meta_title'] ?? '') ?>"></label></p>
-            <p><label>Meta Description<br><textarea name="site_meta_description" rows="3" maxlength="255"><?= e($settings['site_meta_description'] ?? '') ?></textarea></label></p>
-            <button type="submit">Simpan Settings</button>
-            <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
-        </form>
-    </section>
-
-    <section id="social">
-        <h2>Social Links</h2>
-        <form method="post" action="<?= e(url('/admin/business.php')) ?>" novalidate>
-            <?= Csrf::field($csrfKey) ?>
-            <input type="hidden" name="action" value="save_social">
-            <input type="hidden" name="id" value="<?= e((string) ($editSocial['id'] ?? '')) ?>">
-            <p><label>Platform<br><select name="platform">
-                <?php foreach (social_platform_options() as $value => $label): ?>
-                    <option value="<?= e($value) ?>"<?= (($editSocial['platform'] ?? '') === $value) ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-            </select></label></p>
-            <p><label>Label<br><input name="label" maxlength="100" value="<?= e($editSocial['label'] ?? '') ?>"></label></p>
-            <p><label>URL<br><input name="url" type="url" required maxlength="500" value="<?= e($editSocial['url'] ?? '') ?>"></label></p>
-            <p><label>Sort Order<br><input name="sort_order" type="number" value="<?= e((string) ($editSocial['sort_order'] ?? 0)) ?>"></label></p>
-            <p><label><input type="checkbox" name="is_active" value="1"<?= ((int) ($editSocial['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></p>
-            <button type="submit"><?= $editSocial ? 'Update Social Link' : 'Tambah Social Link' ?></button>
-            <?php if ($editSocial): ?><a href="<?= e(url('/admin/business.php#social')) ?>">Batal edit</a><?php endif; ?>
-        </form>
-
-        <?php if ($socialLinks === []): ?>
-            <p>Belum ada social link.</p>
-        <?php else: ?>
-            <table border="1" cellpadding="6">
-                <thead><tr><th>Platform</th><th>Label</th><th>URL</th><th>Sort</th><th>Status</th><th>Aksi</th></tr></thead>
-                <tbody>
-                <?php foreach ($socialLinks as $link): ?>
-                    <tr>
-                        <td><?= e($link['platform']) ?></td>
-                        <td><?= e($link['label'] ?? '') ?></td>
-                        <td><a href="<?= e($link['url']) ?>" rel="noopener noreferrer" target="_blank"><?= e($link['url']) ?></a></td>
-                        <td><?= e((string) $link['sort_order']) ?></td>
-                        <td><?= ((int) $link['is_active'] === 1) ? 'Aktif' : 'Nonaktif' ?></td>
-                        <td>
-                            <a href="<?= e(url('/admin/business.php?edit_social=' . (int) $link['id'] . '#social')) ?>">Edit</a>
-                            <form method="post" action="<?= e(url('/admin/business.php')) ?>" style="display:inline">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate_social"><input type="hidden" name="id" value="<?= e((string) $link['id']) ?>"><button type="submit">Nonaktifkan</button>
-                            </form>
-                            <form method="post" action="<?= e(url('/admin/business.php')) ?>" style="display:inline" onsubmit="return confirm('Hapus social link ini?')">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete_social"><input type="hidden" name="id" value="<?= e((string) $link['id']) ?>"><button type="submit">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </section>
-</main>
-</body>
-</html>
+    <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+    <?php if ($socialLinks === []): ?><?php admin_empty_state('Belum ada social link', 'Tambahkan link agar pengunjung bisa menemukan kanal bisnis Anda.'); ?><?php else: ?>
+        <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-sm"><thead class="bg-slate-50 text-left text-xs font-black uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">Platform</th><th class="px-4 py-3">Label</th><th class="px-4 py-3">URL</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white"><?php foreach ($socialLinks as $link): ?><tr><td class="px-4 py-3 font-bold"><?= e($link['platform']) ?></td><td class="px-4 py-3"><?= e($link['label'] ?? '') ?></td><td class="px-4 py-3"><a href="<?= e($link['url']) ?>" rel="noopener noreferrer" target="_blank" class="text-brand-700 hover:underline"><?= e($link['url']) ?></a></td><td class="px-4 py-3"><?= e((string) $link['sort_order']) ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $link['is_active'] === 1) ?></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><a href="<?= e(url('/admin/business.php?edit_social=' . (int) $link['id'] . '#social')) ?>" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Edit</a><form method="post" action="<?= e(url('/admin/business.php')) ?>"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate_social"><input type="hidden" name="id" value="<?= e((string) $link['id']) ?>"><button type="submit" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Nonaktifkan</button></form><form method="post" action="<?= e(url('/admin/business.php')) ?>" onsubmit="return confirm('Hapus social link ini?')"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete_social"><input type="hidden" name="id" value="<?= e((string) $link['id']) ?>"><button type="submit" class="<?= admin_danger_button() ?>">Hapus</button></form></div></td></tr><?php endforeach; ?></tbody></table></div>
+    <?php endif; ?>
+    </div>
+</section>
+<?php admin_layout_end(); ?>

@@ -149,83 +149,29 @@ $items = $database->select('SELECT i.*, c.name AS category_name FROM items i LEF
 $success = Session::flash('success');
 $error = Session::flash('error');
 ?>
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Produk/Layanan — <?= e(app_config('app.name', 'KreaKit CMS')) ?></title>
-</head>
-<body>
-<main>
-    <h1>Produk/Layanan</h1>
-    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a> · <a href="<?= e(url('/admin/templates.php')) ?>">Template</a> · <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Preview Website</a></p>
-    <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
-    <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
-
-    <section>
-        <h2><?= $editItem ? 'Edit Produk/Layanan' : 'Tambah Produk/Layanan' ?></h2>
-        <form method="post" action="<?= e(url('/admin/items.php')) ?>" enctype="multipart/form-data" novalidate>
-            <?= Csrf::field($csrfKey) ?>
-            <input type="hidden" name="action" value="save">
-            <input type="hidden" name="id" value="<?= e((string) ($editItem['id'] ?? '')) ?>">
-            <p><label>Kategori<br><select name="category_id">
-                <option value="">Tanpa kategori</option>
-                <?php foreach ($categories as $category): ?>
-                    <option value="<?= e((string) $category['id']) ?>"<?= ((int) ($editItem['category_id'] ?? 0) === (int) $category['id']) ? ' selected' : '' ?>><?= e($category['name']) ?></option>
-                <?php endforeach; ?>
-            </select></label></p>
-            <p><label>Nama<br><input name="name" required maxlength="150" value="<?= e($editItem['name'] ?? '') ?>"></label></p>
-            <p><label>Slug<br><input name="slug" maxlength="170" placeholder="otomatis dari nama jika kosong" value="<?= e($editItem['slug'] ?? '') ?>"></label></p>
-            <p><label>Deskripsi Singkat<br><input name="short_description" maxlength="255" value="<?= e($editItem['short_description'] ?? '') ?>"></label></p>
-            <p><label>Deskripsi<br><textarea name="description" rows="4"><?= e($editItem['description'] ?? '') ?></textarea></label></p>
-            <p><label>Harga Angka<br><input name="price" inputmode="decimal" placeholder="28000.00" value="<?= e($editItem['price'] ?? '') ?>"></label></p>
-            <p><label>Label Harga<br><input name="price_label" maxlength="100" placeholder="Mulai Rp50.000" value="<?= e($editItem['price_label'] ?? '') ?>"></label></p>
-            <input type="hidden" name="existing_image_path" value="<?= e($editItem['image_path'] ?? '') ?>">
-            <p><label>Upload Gambar (jpg/png/webp, maks 2 MB)<br><input name="image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($editItem['image_path'])): ?>Saat ini: <?= e($editItem['image_path']) ?><?php endif; ?></p>
-            <p><label>Image Path Upload<br><input name="image_path" maxlength="255" placeholder="uploads/2026/10/namaunik.webp" value="<?= e($editItem['image_path'] ?? '') ?>"></label></p>
-            <p><label>Pesan WhatsApp Opsional<br><input name="whatsapp_message" maxlength="255" value="<?= e($editItem['whatsapp_message'] ?? '') ?>"></label></p>
-            <p><label>Sort Order<br><input name="sort_order" type="number" value="<?= e((string) ($editItem['sort_order'] ?? 0)) ?>"></label></p>
-            <p><label><input type="checkbox" name="is_featured" value="1"<?= ((int) ($editItem['is_featured'] ?? 0) === 1) ? ' checked' : '' ?>> Featured</label></p>
-            <p><label><input type="checkbox" name="is_active" value="1"<?= ((int) ($editItem['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></p>
-            <button type="submit"><?= $editItem ? 'Update Produk/Layanan' : 'Tambah Produk/Layanan' ?></button>
-            <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
-            <?php if ($editItem): ?><a href="<?= e(url('/admin/items.php')) ?>">Batal edit</a><?php endif; ?>
-        </form>
-    </section>
-
-    <section>
-        <h2>Daftar Produk/Layanan</h2>
-        <?php if ($items === []): ?>
-            <p>Belum ada produk/layanan.</p>
-        <?php else: ?>
-            <table border="1" cellpadding="6">
-                <thead><tr><th>Nama</th><th>Slug</th><th>Kategori</th><th>Harga</th><th>Featured</th><th>Status</th><th>Sort</th><th>Aksi</th></tr></thead>
-                <tbody>
-                <?php foreach ($items as $item): ?>
-                    <tr>
-                        <td><?= e($item['name']) ?></td>
-                        <td><?= e($item['slug']) ?></td>
-                        <td><?= e($item['category_name'] ?? 'Tanpa kategori') ?></td>
-                        <td><?= e($item['price_label'] ?: rupiah($item['price'])) ?></td>
-                        <td><?= ((int) $item['is_featured'] === 1) ? 'Ya' : 'Tidak' ?></td>
-                        <td><?= ((int) $item['is_active'] === 1) ? 'Aktif' : 'Nonaktif' ?></td>
-                        <td><?= e((string) $item['sort_order']) ?></td>
-                        <td>
-                            <a href="<?= e(url('/admin/items.php?edit=' . (int) $item['id'])) ?>">Edit</a>
-                            <form method="post" action="<?= e(url('/admin/items.php')) ?>" style="display:inline">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit">Nonaktifkan</button>
-                            </form>
-                            <form method="post" action="<?= e(url('/admin/items.php')) ?>" style="display:inline" onsubmit="return confirm('Hapus produk/layanan ini?')">
-                                <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </section>
-</main>
-</body>
-</html>
+<?php admin_layout_start('Produk/Layanan', 'items', 'Kelola katalog yang akan dilihat pelanggan, lengkap dengan harga, foto, dan CTA WhatsApp.'); ?>
+<?php admin_flash_block($success ?: null, $error ?: null); ?>
+<section class="<?= admin_card() ?>">
+    <h2 class="text-2xl font-black text-slate-950"><?= $editItem ? 'Edit Produk/Layanan' : 'Tambah Produk/Layanan' ?></h2>
+    <p class="mt-2 text-sm text-slate-500">Isi nama dan deskripsi yang mudah dimengerti calon pelanggan.</p>
+    <form method="post" action="<?= e(url('/admin/items.php')) ?>" enctype="multipart/form-data" class="mt-6 grid gap-5" novalidate>
+        <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<?= e((string) ($editItem['id'] ?? '')) ?>">
+        <div class="grid gap-5 lg:grid-cols-3"><div><label class="<?= admin_label_class() ?>">Kategori</label><select name="category_id" class="<?= admin_input_class() ?>"><option value="">Tanpa kategori</option><?php foreach ($categories as $category): ?><option value="<?= e((string) $category['id']) ?>"<?= ((int) ($editItem['category_id'] ?? 0) === (int) $category['id']) ? ' selected' : '' ?>><?= e($category['name']) ?></option><?php endforeach; ?></select></div><div><label class="<?= admin_label_class() ?>">Nama</label><input name="name" required maxlength="150" value="<?= e($editItem['name'] ?? '') ?>" class="<?= admin_input_class() ?>" placeholder="Contoh: Paket Nasi Box"></div><div><label class="<?= admin_label_class() ?>">Slug</label><input name="slug" maxlength="170" placeholder="otomatis dari nama jika kosong" value="<?= e($editItem['slug'] ?? '') ?>" class="<?= admin_input_class() ?>"></div></div>
+        <div><label class="<?= admin_label_class() ?>">Deskripsi Singkat</label><input name="short_description" maxlength="255" value="<?= e($editItem['short_description'] ?? '') ?>" class="<?= admin_input_class() ?>" placeholder="Ringkasan 1 kalimat untuk kartu katalog"></div>
+        <div><label class="<?= admin_label_class() ?>">Deskripsi Lengkap</label><textarea name="description" rows="4" class="<?= admin_input_class() ?>"><?= e($editItem['description'] ?? '') ?></textarea></div>
+        <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4"><div><label class="<?= admin_label_class() ?>">Harga Angka</label><input name="price" inputmode="decimal" placeholder="28000.00" value="<?= e($editItem['price'] ?? '') ?>" class="<?= admin_input_class() ?>"></div><div><label class="<?= admin_label_class() ?>">Label Harga</label><input name="price_label" maxlength="100" placeholder="Mulai Rp50.000" value="<?= e($editItem['price_label'] ?? '') ?>" class="<?= admin_input_class() ?>"></div><div><label class="<?= admin_label_class() ?>">Sort Order</label><input name="sort_order" type="number" value="<?= e((string) ($editItem['sort_order'] ?? 0)) ?>" class="<?= admin_input_class() ?>"></div><div><label class="<?= admin_label_class() ?>">Pesan WhatsApp</label><input name="whatsapp_message" maxlength="255" value="<?= e($editItem['whatsapp_message'] ?? '') ?>" class="<?= admin_input_class() ?>"></div></div>
+        <input type="hidden" name="existing_image_path" value="<?= e($editItem['image_path'] ?? '') ?>">
+        <div class="grid gap-5 md:grid-cols-2"><div><label class="<?= admin_label_class() ?>">Upload Gambar</label><input name="image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">jpg/png/webp, maks 2 MB. <?php if (!empty($editItem['image_path'])): ?>Saat ini: <?= e($editItem['image_path']) ?><?php endif; ?></p></div><div><label class="<?= admin_label_class() ?>">Image Path Upload</label><input name="image_path" maxlength="255" placeholder="uploads/2026/10/namaunik.webp" value="<?= e($editItem['image_path'] ?? '') ?>" class="<?= admin_input_class() ?>"><p class="<?= admin_help_class() ?>">Opsional untuk path upload yang sudah ada.</p></div></div>
+        <div class="flex flex-wrap gap-4"><label class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" name="is_featured" value="1" class="h-4 w-4 rounded"<?= ((int) ($editItem['is_featured'] ?? 0) === 1) ? ' checked' : '' ?>> Featured</label><label class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" name="is_active" value="1" class="h-4 w-4 rounded"<?= ((int) ($editItem['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></div>
+        <div class="flex flex-wrap gap-3"><button type="submit" class="<?= admin_primary_button() ?>"><?= $editItem ? 'Update Produk/Layanan' : 'Tambah Produk/Layanan' ?></button><button type="submit" name="preview_after_save" value="1" class="<?= admin_secondary_button() ?>">Simpan & Preview</button><?php if ($editItem): ?><a href="<?= e(url('/admin/items.php')) ?>" class="<?= admin_secondary_button() ?>">Batal edit</a><?php endif; ?></div>
+    </form>
+</section>
+<section class="mt-6 <?= admin_card() ?>">
+    <h2 class="text-2xl font-black text-slate-950">Daftar Produk/Layanan</h2>
+    <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+    <?php if ($items === []): ?><?php admin_empty_state('Belum ada produk/layanan', 'Tambahkan item pertama untuk mengisi katalog publik.'); ?><?php else: ?>
+        <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-sm"><thead class="bg-slate-50 text-left text-xs font-black uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">Nama</th><th class="px-4 py-3">Kategori</th><th class="px-4 py-3">Harga</th><th class="px-4 py-3">Featured</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white"><?php foreach ($items as $item): ?><tr><td class="px-4 py-3"><p class="font-bold text-slate-950"><?= e($item['name']) ?></p><p class="text-xs text-slate-500"><?= e($item['slug']) ?></p></td><td class="px-4 py-3"><?= e($item['category_name'] ?? 'Tanpa kategori') ?></td><td class="px-4 py-3 font-semibold"><?= e($item['price_label'] ?: rupiah($item['price'])) ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $item['is_featured'] === 1, 'Ya', 'Tidak') ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $item['is_active'] === 1) ?></td><td class="px-4 py-3"><?= e((string) $item['sort_order']) ?></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><a href="<?= e(url('/admin/items.php?edit=' . (int) $item['id'])) ?>" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Edit</a><form method="post" action="<?= e(url('/admin/items.php')) ?>"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Nonaktifkan</button></form><form method="post" action="<?= e(url('/admin/items.php')) ?>" onsubmit="return confirm('Hapus produk/layanan ini?')"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit" class="<?= admin_danger_button() ?>">Hapus</button></form></div></td></tr><?php endforeach; ?></tbody></table></div>
+    <?php endif; ?>
+    </div>
+</section>
+<?php admin_layout_end(); ?>
