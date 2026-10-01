@@ -1,6 +1,6 @@
 # KreaKit CMS
 
-CMS native PHP ringan untuk website/katalog UMKM. Fondasi ini belum mencakup login admin atau CRUD konten penuh; task berikutnya akan menambahkan fitur tersebut.
+CMS native PHP ringan untuk website/katalog UMKM. Fondasi ini mencakup autentikasi admin dasar (login/logout, proteksi halaman admin, dan ubah password), tetapi belum mencakup CRUD konten penuh; task berikutnya akan menambahkan fitur tersebut.
 
 ## Requirement
 
@@ -17,4 +17,4 @@ CMS native PHP ringan untuk website/katalog UMKM. Fondasi ini belum mencakup log
 4. Isi kredensial database di `config/config.php` dan set `database.enabled` menjadi `true`.
 5. Jalankan lokal: `php -S localhost:8000 -t public`.
 
-Admin seed awal: `admin@example.test` / `ChangeMe123!`. Wajib ubah setelah fitur auth/password update tersedia.
+Admin seed awal: `admin@example.test` / `ChangeMe123!`. Wajib ubah setelah login pertama melalui `/admin/password.php`.

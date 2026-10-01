@@ -78,3 +78,19 @@ function storage_path(string $path = ''): string
 {
     return base_path('storage' . ($path !== '' ? '/' . ltrim($path, '/') : ''));
 }
+
+function db(): \KreaKit\Core\Database
+{
+    static $database = null;
+
+    if (!$database instanceof \KreaKit\Core\Database) {
+        $database = new \KreaKit\Core\Database((array) app_config('database', []));
+    }
+
+    return $database;
+}
+
+function require_admin(): void
+{
+    \KreaKit\Core\Auth::requireAdmin();
+}
