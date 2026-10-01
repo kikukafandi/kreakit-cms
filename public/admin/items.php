@@ -30,7 +30,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $priceRaw = trim((string) ($_POST['price'] ?? ''));
             $price = nullable_decimal_input('price');
             $priceLabel = sanitize_text_or_null((string) ($_POST['price_label'] ?? ''), 100);
-            $imagePath = sanitize_text_or_null((string) ($_POST['image_path'] ?? ''), 255);
+            $imagePath = validate_local_upload_path((string) ($_POST['existing_image_path'] ?? ''));
+            $manualImagePath = validate_local_upload_path((string) ($_POST['image_path'] ?? ''));
+            if ($manualImagePath !== null) {
+                $imagePath = $manualImagePath;
+            }
+            try {
+                $imageUpload = secure_image_upload($_FILES['image_file'] ?? null, $database);
+                if ($imageUpload !== null) {
+                    $imagePath = $imageUpload['path'];
+                }
+            } catch (RuntimeException $uploadError) {
+                $errors[] = $uploadError->getMessage();
+            }
             $whatsappMessage = sanitize_text_or_null((string) ($_POST['whatsapp_message'] ?? ''), 255);
             $sortOrder = int_input('sort_order');
             $isFeatured = checkbox_bool('is_featured');
@@ -51,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($categoryId !== null && $database->selectOne('SELECT id FROM categories WHERE id = :id LIMIT 1', ['id' => $categoryId]) === null) {
                 $errors[] = 'Kategori tidak ditemukan.';
             }
-            if ($imagePath !== null && preg_match('/^(https?:)?\/\//i', $imagePath)) {
-                $errors[] = 'Image path harus path lokal/placeholder, bukan URL eksternal. Upload akan ditangani task berikutnya.';
+            if ($imagePath !== null && validate_local_upload_path($imagePath) === null) {
+                $errors[] = 'Image path harus berasal dari folder uploads/YYYY/MM dan format jpg/png/webp.';
             }
 
             if ($errors === []) {
@@ -96,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                     Session::flash('success', 'Produk/layanan berhasil ditambahkan.');
                 }
-                redirect(url('/admin/items.php'));
+                redirect(isset($_POST['preview_after_save']) ? url('/') : url('/admin/items.php'));
             }
         } elseif ($action === 'deactivate') {
             $id = id_input('id');
@@ -147,13 +159,13 @@ $error = Session::flash('error');
 <body>
 <main>
     <h1>Produk/Layanan</h1>
-    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a></p>
+    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a> · <a href="<?= e(url('/admin/templates.php')) ?>">Template</a> · <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Preview Website</a></p>
     <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
     <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
 
     <section>
         <h2><?= $editItem ? 'Edit Produk/Layanan' : 'Tambah Produk/Layanan' ?></h2>
-        <form method="post" action="<?= e(url('/admin/items.php')) ?>" novalidate>
+        <form method="post" action="<?= e(url('/admin/items.php')) ?>" enctype="multipart/form-data" novalidate>
             <?= Csrf::field($csrfKey) ?>
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="id" value="<?= e((string) ($editItem['id'] ?? '')) ?>">
@@ -169,12 +181,15 @@ $error = Session::flash('error');
             <p><label>Deskripsi<br><textarea name="description" rows="4"><?= e($editItem['description'] ?? '') ?></textarea></label></p>
             <p><label>Harga Angka<br><input name="price" inputmode="decimal" placeholder="28000.00" value="<?= e($editItem['price'] ?? '') ?>"></label></p>
             <p><label>Label Harga<br><input name="price_label" maxlength="100" placeholder="Mulai Rp50.000" value="<?= e($editItem['price_label'] ?? '') ?>"></label></p>
-            <p><label>Image Path Placeholder<br><input name="image_path" maxlength="255" placeholder="uploads/placeholder.jpg" value="<?= e($editItem['image_path'] ?? '') ?>"></label></p>
+            <input type="hidden" name="existing_image_path" value="<?= e($editItem['image_path'] ?? '') ?>">
+            <p><label>Upload Gambar (jpg/png/webp, maks 2 MB)<br><input name="image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($editItem['image_path'])): ?>Saat ini: <?= e($editItem['image_path']) ?><?php endif; ?></p>
+            <p><label>Image Path Upload<br><input name="image_path" maxlength="255" placeholder="uploads/2026/10/namaunik.webp" value="<?= e($editItem['image_path'] ?? '') ?>"></label></p>
             <p><label>Pesan WhatsApp Opsional<br><input name="whatsapp_message" maxlength="255" value="<?= e($editItem['whatsapp_message'] ?? '') ?>"></label></p>
             <p><label>Sort Order<br><input name="sort_order" type="number" value="<?= e((string) ($editItem['sort_order'] ?? 0)) ?>"></label></p>
             <p><label><input type="checkbox" name="is_featured" value="1"<?= ((int) ($editItem['is_featured'] ?? 0) === 1) ? ' checked' : '' ?>> Featured</label></p>
             <p><label><input type="checkbox" name="is_active" value="1"<?= ((int) ($editItem['is_active'] ?? 1) === 1) ? ' checked' : '' ?>> Aktif</label></p>
             <button type="submit"><?= $editItem ? 'Update Produk/Layanan' : 'Tambah Produk/Layanan' ?></button>
+            <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
             <?php if ($editItem): ?><a href="<?= e(url('/admin/items.php')) ?>">Batal edit</a><?php endif; ?>
         </form>
     </section>

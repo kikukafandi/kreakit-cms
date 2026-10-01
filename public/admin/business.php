@@ -29,6 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mapsUrl = sanitize_http_url($mapsUrlRaw, 500);
             $email = sanitize_text_or_null((string) ($_POST['email'] ?? ''), 190);
             $phone = sanitize_text_or_null((string) ($_POST['phone'] ?? ''), 50);
+            $logoPath = validate_local_upload_path((string) ($_POST['existing_logo_path'] ?? ''));
+            $heroImagePath = validate_local_upload_path((string) ($_POST['existing_hero_image_path'] ?? ''));
+
+            try {
+                $logoUpload = secure_image_upload($_FILES['logo_file'] ?? null, $database);
+                if ($logoUpload !== null) {
+                    $logoPath = $logoUpload['path'];
+                }
+                $heroUpload = secure_image_upload($_FILES['hero_image_file'] ?? null, $database);
+                if ($heroUpload !== null) {
+                    $heroImagePath = $heroUpload['path'];
+                }
+            } catch (RuntimeException $uploadError) {
+                $errors[] = $uploadError->getMessage();
+            }
 
             if ($businessName === '') {
                 $errors[] = 'Nama bisnis wajib diisi.';
@@ -47,11 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $existing = $database->selectOne('SELECT id FROM business_profiles ORDER BY id ASC LIMIT 1');
                 if ($existing === null) {
                     $database->execute(
-                        'INSERT INTO business_profiles (business_name, tagline, description, whatsapp_number, address, maps_url, email, phone) VALUES (:business_name, :tagline, :description, :whatsapp_number, :address, :maps_url, :email, :phone)',
+                        'INSERT INTO business_profiles (business_name, tagline, description, logo_path, hero_image_path, whatsapp_number, address, maps_url, email, phone) VALUES (:business_name, :tagline, :description, :logo_path, :hero_image_path, :whatsapp_number, :address, :maps_url, :email, :phone)',
                         [
                             'business_name' => $businessName,
                             'tagline' => $tagline,
                             'description' => $description,
+                            'logo_path' => $logoPath,
+                            'hero_image_path' => $heroImagePath,
                             'whatsapp_number' => $whatsapp,
                             'address' => $address,
                             'maps_url' => $mapsUrl,
@@ -61,11 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                 } else {
                     $database->execute(
-                        'UPDATE business_profiles SET business_name = :business_name, tagline = :tagline, description = :description, whatsapp_number = :whatsapp_number, address = :address, maps_url = :maps_url, email = :email, phone = :phone WHERE id = :id',
+                        'UPDATE business_profiles SET business_name = :business_name, tagline = :tagline, description = :description, logo_path = :logo_path, hero_image_path = :hero_image_path, whatsapp_number = :whatsapp_number, address = :address, maps_url = :maps_url, email = :email, phone = :phone WHERE id = :id',
                         [
                             'business_name' => $businessName,
                             'tagline' => $tagline,
                             'description' => $description,
+                            'logo_path' => $logoPath,
+                            'hero_image_path' => $heroImagePath,
                             'whatsapp_number' => $whatsapp,
                             'address' => $address,
                             'maps_url' => $mapsUrl,
@@ -76,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                 }
                 Session::flash('success', 'Profil bisnis berhasil disimpan.');
-                redirect(url('/admin/business.php'));
+                redirect(isset($_POST['preview_after_save']) ? url('/') : url('/admin/business.php'));
             }
         } elseif ($action === 'save_settings') {
             $settings = [
@@ -109,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                 }
                 Session::flash('success', 'Settings dasar berhasil disimpan.');
-                redirect(url('/admin/business.php#settings'));
+                redirect(isset($_POST['preview_after_save']) ? url('/') : url('/admin/business.php#settings'));
             }
         } elseif ($action === 'save_social') {
             $id = id_input('id');
@@ -202,22 +221,27 @@ $error = Session::flash('error');
 <body>
 <main>
     <h1>Profil Bisnis</h1>
-    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a> · <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a></p>
+    <p><a href="<?= e(url('/admin/dashboard.php')) ?>">Dashboard</a> · <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a> · <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a> · <a href="<?= e(url('/admin/templates.php')) ?>">Template</a> · <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Preview Website</a></p>
     <?php if ($success): ?><p role="status"><?= e($success) ?></p><?php endif; ?>
     <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
 
-    <form method="post" action="<?= e(url('/admin/business.php')) ?>" novalidate>
+    <form method="post" action="<?= e(url('/admin/business.php')) ?>" enctype="multipart/form-data" novalidate>
         <?= Csrf::field($csrfKey) ?>
         <input type="hidden" name="action" value="save_business">
         <p><label>Nama Bisnis<br><input name="business_name" required maxlength="150" value="<?= e($business['business_name'] ?? '') ?>"></label></p>
         <p><label>Tagline<br><input name="tagline" maxlength="190" value="<?= e($business['tagline'] ?? '') ?>"></label></p>
         <p><label>Deskripsi<br><textarea name="description" rows="5"><?= e($business['description'] ?? '') ?></textarea></label></p>
+        <input type="hidden" name="existing_logo_path" value="<?= e($business['logo_path'] ?? '') ?>">
+        <input type="hidden" name="existing_hero_image_path" value="<?= e($business['hero_image_path'] ?? '') ?>">
+        <p><label>Logo (jpg/png/webp, maks 2 MB)<br><input name="logo_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($business['logo_path'])): ?>Saat ini: <?= e($business['logo_path']) ?><?php endif; ?></p>
+        <p><label>Hero Image (jpg/png/webp, maks 2 MB)<br><input name="hero_image_file" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label><br><?php if (!empty($business['hero_image_path'])): ?>Saat ini: <?= e($business['hero_image_path']) ?><?php endif; ?></p>
         <p><label>WhatsApp<br><input name="whatsapp_number" maxlength="30" placeholder="6281234567890" value="<?= e($business['whatsapp_number'] ?? '') ?>"></label></p>
         <p><label>Alamat<br><textarea name="address" rows="3"><?= e($business['address'] ?? '') ?></textarea></label></p>
         <p><label>URL Maps<br><input name="maps_url" type="url" maxlength="500" placeholder="https://maps.google.com/..." value="<?= e($business['maps_url'] ?? '') ?>"></label></p>
         <p><label>Email<br><input name="email" type="email" maxlength="190" value="<?= e($business['email'] ?? '') ?>"></label></p>
         <p><label>Phone<br><input name="phone" maxlength="50" value="<?= e($business['phone'] ?? '') ?>"></label></p>
         <button type="submit">Simpan Profil</button>
+        <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
     </form>
 
     <section id="settings">
@@ -240,6 +264,7 @@ $error = Session::flash('error');
             <p><label>Meta Title<br><input name="site_meta_title" maxlength="150" value="<?= e($settings['site_meta_title'] ?? '') ?>"></label></p>
             <p><label>Meta Description<br><textarea name="site_meta_description" rows="3" maxlength="255"><?= e($settings['site_meta_description'] ?? '') ?></textarea></label></p>
             <button type="submit">Simpan Settings</button>
+            <button type="submit" name="preview_after_save" value="1">Simpan & Preview</button>
         </form>
     </section>
 

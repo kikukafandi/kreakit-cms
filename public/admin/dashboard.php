@@ -32,6 +32,7 @@ http_response_code(200);
         <p>Login sebagai <strong><?= e($admin['name'] ?? 'Admin') ?></strong> (<?= e($admin['email'] ?? '') ?>).</p>
         <nav aria-label="Navigasi admin">
             <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis & Sosial</a>
+            <a href="<?= e(url('/admin/templates.php')) ?>">Template</a>
             <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a>
             <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a>
             <a href="<?= e(url('/admin/password.php')) ?>">Ubah Password</a>

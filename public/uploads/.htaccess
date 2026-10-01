@@ -1,6 +1,10 @@
-Options -Indexes
-<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8)$">
+Options -Indexes -ExecCGI
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .svg .shtml .cgi .pl
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .svg .shtml .cgi .pl
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phar|svg|shtml|cgi|pl)$">
     Require all denied
 </FilesMatch>
-RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8
-RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8
