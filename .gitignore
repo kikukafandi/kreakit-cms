@@ -1,0 +1,9 @@
+/config/config.php
+/storage/logs/*.log
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/public/uploads/*
+!/public/uploads/.htaccess
+!/public/uploads/.gitkeep
