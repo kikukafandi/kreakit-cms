@@ -1,0 +1,8 @@
+Font di folder ini dipakai oleh template publik dan di-host sendiri (tanpa Google Fonts CDN).
+Semua berlisensi SIL Open Font License 1.1 (https://openfontlicense.org), boleh dipakai dan didistribusikan ulang bersama software.
+
+- bricolage-grotesque.woff2  Bricolage Grotesque  https://github.com/ateliertriay/bricolage
+- manrope.woff2              Manrope              https://github.com/sharanda/manrope
+- outfit.woff2               Outfit               https://github.com/Outfitio/Outfit-Fonts
+
+Subset latin, variable weight 400-800.

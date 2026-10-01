@@ -95,7 +95,7 @@ $error = Session::flash('error');
 <?php admin_flash_block($success ?: null, $error ?: null); ?>
 <div class="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
 <section class="<?= admin_card() ?>">
-    <h2 class="text-2xl font-black text-slate-950"><?= $editCategory ? 'Edit Kategori' : 'Tambah Kategori' ?></h2>
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-950"><?= $editCategory ? 'Edit Kategori' : 'Tambah Kategori' ?></h2>
     <p class="mt-2 text-sm text-slate-500">Slug boleh dikosongkan, sistem akan membuat dari nama.</p>
     <form method="post" action="<?= e(url('/admin/categories.php')) ?>" class="mt-6 grid gap-5" novalidate>
         <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<?= e((string) ($editCategory['id'] ?? '')) ?>">
@@ -107,7 +107,7 @@ $error = Session::flash('error');
     </form>
 </section>
 <section class="<?= admin_card() ?>">
-    <h2 class="text-2xl font-black text-slate-950">Daftar Kategori</h2>
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-950">Daftar Kategori</h2>
     <p class="mt-2 text-sm text-slate-500">Kategori nonaktif tidak ditonjolkan di website publik.</p>
     <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
     <?php if ($categories === []): ?><?php admin_empty_state('Belum ada kategori', 'Tambah kategori pertama untuk mengelompokkan katalog.'); ?><?php else: ?>
