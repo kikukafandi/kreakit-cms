@@ -6,5 +6,7 @@
 /storage/sessions/*
 !/storage/sessions/.gitkeep
 /public/uploads/*
+!/public/uploads/2000/
 !/public/uploads/.htaccess
 !/public/uploads/.gitkeep
+/dist/

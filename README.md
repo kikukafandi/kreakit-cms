@@ -31,3 +31,20 @@ Setelah install, `/install/index.php` akan menolak berjalan selama `storage/inst
 5. Jalankan lokal: `php -S localhost:8000 -t public`.
 
 Admin seed awal untuk setup manual: `admin@example.test` / `ChangeMe123!`. Wajib ubah setelah login pertama melalui `/admin/password.php`.
+
+## Mengisi Website
+
+Setelah login admin, isi berurutan:
+
+1. **Profil Bisnis**: nama, deskripsi, WhatsApp, alamat, logo, foto utama, warna, dan sosial media.
+2. **Template**: pilih Kuliner Simple, Jasa Lokal, atau Produk Katalog. Bisa diganti kapan saja tanpa kehilangan data.
+3. **Kategori** dan **Produk/Layanan**: isi katalog, harga, dan foto.
+4. **Konten Halaman**: section company profile (tentang kami, angka pencapaian, keunggulan, galeri, testimoni, FAQ, jam buka). Bagian yang dikosongkan tidak tampil di website.
+
+Dashboard menampilkan checklist kelengkapan website supaya tidak ada yang terlewat.
+
+## Lisensi Aset
+
+- Foto demo di `public/uploads/2000/01/` berlisensi CC0 (public domain), daftar sumbernya ada di `CREDITS.txt` pada folder yang sama.
+- Ikon: Phosphor Icons (MIT), lihat `templates/_shared/LICENSE-phosphor.txt`.
+- Font: Bricolage Grotesque, Manrope, dan Outfit (SIL Open Font License), lihat `public/assets/fonts/LICENSE.txt`.

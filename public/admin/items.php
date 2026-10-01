@@ -152,7 +152,7 @@ $error = Session::flash('error');
 <?php admin_layout_start('Produk/Layanan', 'items', 'Kelola katalog yang akan dilihat pelanggan, lengkap dengan harga, foto, dan CTA WhatsApp.'); ?>
 <?php admin_flash_block($success ?: null, $error ?: null); ?>
 <section class="<?= admin_card() ?>">
-    <h2 class="text-2xl font-black text-slate-950"><?= $editItem ? 'Edit Produk/Layanan' : 'Tambah Produk/Layanan' ?></h2>
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-950"><?= $editItem ? 'Edit Produk/Layanan' : 'Tambah Produk/Layanan' ?></h2>
     <p class="mt-2 text-sm text-slate-500">Isi nama dan deskripsi yang mudah dimengerti calon pelanggan.</p>
     <form method="post" action="<?= e(url('/admin/items.php')) ?>" enctype="multipart/form-data" class="mt-6 grid gap-5" novalidate>
         <?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<?= e((string) ($editItem['id'] ?? '')) ?>">
@@ -167,7 +167,7 @@ $error = Session::flash('error');
     </form>
 </section>
 <section class="mt-6 <?= admin_card() ?>">
-    <h2 class="text-2xl font-black text-slate-950">Daftar Produk/Layanan</h2>
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-950">Daftar Produk/Layanan</h2>
     <div class="mt-6 overflow-hidden rounded-3xl border border-slate-200">
     <?php if ($items === []): ?><?php admin_empty_state('Belum ada produk/layanan', 'Tambahkan item pertama untuk mengisi katalog publik.'); ?><?php else: ?>
         <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-sm"><thead class="bg-slate-50 text-left text-xs font-black uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">Nama</th><th class="px-4 py-3">Kategori</th><th class="px-4 py-3">Harga</th><th class="px-4 py-3">Featured</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white"><?php foreach ($items as $item): ?><tr><td class="px-4 py-3"><p class="font-bold text-slate-950"><?= e($item['name']) ?></p><p class="text-xs text-slate-500"><?= e($item['slug']) ?></p></td><td class="px-4 py-3"><?= e($item['category_name'] ?? 'Tanpa kategori') ?></td><td class="px-4 py-3 font-semibold"><?= e($item['price_label'] ?: rupiah($item['price'])) ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $item['is_featured'] === 1, 'Ya', 'Tidak') ?></td><td class="px-4 py-3"><?= admin_status_badge((int) $item['is_active'] === 1) ?></td><td class="px-4 py-3"><?= e((string) $item['sort_order']) ?></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><a href="<?= e(url('/admin/items.php?edit=' . (int) $item['id'])) ?>" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Edit</a><form method="post" action="<?= e(url('/admin/items.php')) ?>"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="deactivate"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit" class="<?= admin_secondary_button('!px-3 !py-2 !text-xs') ?>">Nonaktifkan</button></form><form method="post" action="<?= e(url('/admin/items.php')) ?>" onsubmit="return confirm('Hapus produk/layanan ini?')"><?= Csrf::field($csrfKey) ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= e((string) $item['id']) ?>"><button type="submit" class="<?= admin_danger_button() ?>">Hapus</button></form></div></td></tr><?php endforeach; ?></tbody></table></div>

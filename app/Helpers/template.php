@@ -80,7 +80,7 @@ function render_safe_public_fallback(?array $business, array $items = []): void
             <?php if ($items !== []): ?>
                 <ul>
                     <?php foreach ($items as $item): ?>
-                        <li><?= e($item['name'] ?? '') ?><?= !empty($item['price_label']) ? ' — ' . e($item['price_label']) : '' ?></li>
+                        <li><?= e($item['name'] ?? '') ?><?= !empty($item['price_label']) ? ' - ' . e($item['price_label']) : '' ?></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
@@ -88,4 +88,35 @@ function render_safe_public_fallback(?array $business, array $items = []): void
     </body>
     </html>
     <?php
+}
+
+/**
+ * Company-profile sections edited in /admin/sections.php, stored as JSON in the settings table.
+ * Always returns every key, with empty values for sections that were never filled.
+ */
+function page_sections(array $settings): array
+{
+    $json = static function (string $key) use ($settings): array {
+        $decoded = json_decode((string) ($settings[$key] ?? ''), true);
+        return is_array($decoded) ? $decoded : [];
+    };
+    $rows = static fn (array $list, array $fields): array => array_values(array_filter(
+        array_map(static fn ($row): array => array_map(static fn (string $field): string => is_array($row) ? trim((string) ($row[$field] ?? '')) : '', array_combine($fields, $fields)), $list),
+        static fn (array $row): bool => implode('', $row) !== ''
+    ));
+    $about = $json('section_about');
+
+    return [
+        'about' => [
+            'title' => trim((string) ($about['title'] ?? '')),
+            'body' => trim((string) ($about['body'] ?? '')),
+            'image' => validate_local_upload_path((string) ($about['image'] ?? '')),
+        ],
+        'highlights' => $rows($json('section_highlights'), ['title', 'body']),
+        'stats' => $rows($json('section_stats'), ['value', 'label']),
+        'gallery' => array_values(array_filter(array_map(static fn ($path): ?string => validate_local_upload_path((string) $path), $json('section_gallery')))),
+        'testimonials' => $rows($json('section_testimonials'), ['name', 'role', 'quote']),
+        'faq' => $rows($json('section_faq'), ['question', 'answer']),
+        'hours' => trim((string) ($settings['section_hours'] ?? '')),
+    ];
 }

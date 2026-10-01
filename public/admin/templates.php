@@ -59,7 +59,7 @@ $error = Session::flash('error');
             <article class="overflow-hidden rounded-[2rem] border <?= $isActive ? 'border-brand-600 ring-4 ring-brand-100' : 'border-slate-200' ?> bg-white shadow-sm shadow-slate-200/70">
                 <div class="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-brand-50">
                     <?php if ($previewUrl !== null): ?>
-                        <img src="<?= e($previewUrl) ?>" alt="Preview template <?= e($template['name']) ?>" class="h-full w-full object-cover">
+                        <img src="<?= e($previewUrl) ?>" alt="Preview template <?= e($template['name']) ?>" class="h-full w-full object-cover object-left-top">
                     <?php else: ?>
                         <div class="flex h-full items-center justify-center p-6 text-center">
                             <div>

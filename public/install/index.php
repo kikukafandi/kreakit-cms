@@ -113,7 +113,7 @@ http_response_code(200);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Install KreaKit CMS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <?= admin_tailwind_cdn() ?>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
     <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
