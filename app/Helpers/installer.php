@@ -330,7 +330,11 @@ function installer_install(array $input, bool $attemptCreateDatabase): array
                 strtolower(trim((string) ($input['admin_email'] ?? ''))),
                 (string) ($input['admin_password'] ?? '')
             );
-            $pdo->commit();
+            // MySQL implicitly commits DDL statements, so a transaction opened
+            // before schema.sql may already be closed by this point.
+            if ($pdo->inTransaction()) {
+                $pdo->commit();
+            }
         } catch (Throwable $throwable) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
