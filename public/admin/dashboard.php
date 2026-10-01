@@ -31,6 +31,9 @@ http_response_code(200);
         <?php if ($error): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
         <p>Login sebagai <strong><?= e($admin['name'] ?? 'Admin') ?></strong> (<?= e($admin['email'] ?? '') ?>).</p>
         <nav aria-label="Navigasi admin">
+            <a href="<?= e(url('/admin/business.php')) ?>">Profil Bisnis & Sosial</a>
+            <a href="<?= e(url('/admin/categories.php')) ?>">Kategori</a>
+            <a href="<?= e(url('/admin/items.php')) ?>">Produk/Layanan</a>
             <a href="<?= e(url('/admin/password.php')) ?>">Ubah Password</a>
             <a href="<?= e(url('/')) ?>">Lihat Website</a>
         </nav>
@@ -40,7 +43,7 @@ http_response_code(200);
         </form>
         <section>
             <h2>Status MVP</h2>
-            <p>Dashboard auth aktif. CRUD konten akan ditambahkan pada task berikutnya.</p>
+            <p>Auth admin aktif. CRUD profil bisnis, social links, kategori, dan produk/layanan tersedia lewat navigasi di atas.</p>
         </section>
     </main>
 </body>

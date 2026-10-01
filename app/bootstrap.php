@@ -25,6 +25,7 @@ $helpers = [
     BASE_PATH . '/app/Helpers/formatting.php',
     BASE_PATH . '/app/Helpers/validation.php',
     BASE_PATH . '/app/Helpers/whatsapp.php',
+    BASE_PATH . '/app/Helpers/admin_content.php',
 ];
 
 foreach ($helpers as $helper) {
