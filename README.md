@@ -48,3 +48,7 @@ Dashboard menampilkan checklist kelengkapan website supaya tidak ada yang terlew
 - Foto demo di `public/uploads/2000/01/` berlisensi CC0 (public domain), daftar sumbernya ada di `CREDITS.txt` pada folder yang sama.
 - Ikon: Phosphor Icons (MIT), lihat `templates/_shared/LICENSE-phosphor.txt`.
 - Font: Bricolage Grotesque, Manrope, dan Outfit (SIL Open Font License), lihat `public/assets/fonts/LICENSE.txt`.
+
+## Butuh Bantuan atau Fitur Tambahan?
+
+Butuh blog, halaman tambahan, desain custom, atau dipasangkan sekalian ke hosting? Hubungi tim KreaByte di [kreabyte.com](https://kreabyte.com).
